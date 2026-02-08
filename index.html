@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard | Advanced Personal Project</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Chart.js for Weather Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Custom Weather Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/weather-icons@1.2.0/css/weather-icons.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #1abc9c;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --success-color: #27ae60;
+            --light-bg: #f8f9fa;
+            --dark-bg: #2c3e50;
+            --text-color: #333;
+            --light-text: #f8f9fa;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --gradient-primary: linear-gradient(135deg, #3498db, #2c3e50);
+            --gradient-accent: linear-gradient(135deg, #1abc9c, #16a085);
+            --gradient-warning: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        .navbar {
+            background: var(--gradient-primary);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--light-text);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand i {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+        }
+
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            margin: 0 0.2rem;
+        }
+
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .hero-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 3rem 0 4rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: cover;
+        }
+
+        .hero-section h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .tech-badges {
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tech-badge:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .tech-badge i {
+            font-size: 1.1rem;
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .search-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .city-search-input {
+            border: 2px solid #e0e6ed;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #f8fafc;
+        }
+
+        .city-search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.3rem rgba(52, 152, 219, 0.2);
+            background-color: white;
+        }
+
+        .btn {
+            padding: 0.9rem 1.8rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-accent {
+            background: var(--gradient-accent);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(26, 188, 156, 0.3);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.2);
+        }
+
+        .current-weather-card {
+            background-color: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .current-weather-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient-primary);
+        }
+
+        .current-weather-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .weather-icon-large {
+            font-size: 5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 5px 10px rgba(52, 152, 219, 0.3));
+        }
+
+        .temperature-display {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            line-height: 1;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .temperature-unit-toggle {
+            display: inline-flex;
+            background-color: #f1f8ff;
+            border-radius: 50px;
+            padding: 0.3rem;
+            margin-left: 1rem;
+        }
+
+        .unit-btn {
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: #666;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .unit-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .weather-details {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 2rem;
+        }
+
+        .weather-details li {
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .weather-details li:hover {
+            background-color: #f9f9f9;
+            padding-left: 10px;
+            border-radius: 8px;
+        }
+
+        .weather-details li:last-child {
+            border-bottom: none;
+        }
+
+        .weather-details i {
+            width: 30px;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .forecast-container {
+            margin-top: 3rem;
+        }
+
+        .forecast-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 1.8rem;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            transition: var(--transition);
+            height: 100%;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .forecast-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0.7;
+        }
+
+        .forecast-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .forecast-day {
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .forecast-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin: 1rem 0;
+            filter: drop-shadow(0 3px 5px rgba(52, 152, 219, 0.2));
+        }
+
+        .forecast-temp {
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+        }
+
+        .cities-list {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            max-height: 650px;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .cities-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .city-item {
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 5px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #f0f0f0;
+        }
+
+        .city-item:hover {
+            background-color: #f8fafc;
+            border-left-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .city-item.active {
+            background: linear-gradient(135deg, #e8f4fc, #d4e8f9);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .city-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .city-name {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .city-country {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .city-weather {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .city-temp {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .stats-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            margin-bottom: 1.8rem;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .stats-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-label {
+            font-size: 0.95rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .advanced-features {
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            height: 100%;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #e8f4fc, #d4e8f9);
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+        }
+
+        footer {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 5rem;
+            text-align: center;
+        }
+
+        .footer-text {
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 1.5rem;
+        }
+
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .social-icon:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        /* Loading animation */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Custom Styling */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--gradient-primary);
+            color: white;
+            border-bottom: none;
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-title {
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #f0f0f0;
+            padding: 1.5rem 2rem;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+
+        /* Weather Map */
+        .weather-map-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e8f4fc, #d4e8f9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-placeholder {
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .map-placeholder i {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
+        }
+
+        /* Notification Toast */
+        .notification-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+            
+            .temperature-display {
+                font-size: 3rem;
+            }
+            
+            .weather-icon-large {
+                font-size: 4rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
+            .tech-badge {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .temperature-display {
+                font-size: 2.5rem;
+            }
+            
+            .weather-icon-large {
+                font-size: 3rem;
+            }
+            
+            .btn {
+                padding: 0.8rem 1.5rem;
+            }
+        }
+
+        /* Dark mode toggle */
+        .dark-mode-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1) rotate(30deg);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-cloud-sun-rain"></i>
+                <span>Weather Dashboard Pro</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-home me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#citiesModal"><i class="fas fa-city me-1"></i> Cities</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#forecastModal"><i class="fas fa-chart-line me-1"></i> Forecast</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#mapsModal"><i class="fas fa-map me-1"></i> Maps</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal"><i class="fas fa-cog me-1"></i> Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" data-aos="fade-down">
+        <div class="container">
+            <h1 class="animate__animated animate__fadeInDown">Advanced Weather Dashboard</h1>
+            <p class="animate__animated animate__fadeInUp">A cutting-edge weather application with real-time API integration, interactive maps, advanced analytics, and AI-powered predictions.</p>
+            <div class="tech-badges">
+                <span class="tech-badge"><i class="fab fa-html5"></i> HTML5</span>
+                <span class="tech-badge"><i class="fab fa-css3-alt"></i> CSS3</span>
+                <span class="tech-badge"><i class="fab fa-js"></i> JavaScript ES6+</span>
+                <span class="tech-badge"><i class="fas fa-cloud"></i> REST API</span>
+                <span class="tech-badge"><i class="fab fa-bootstrap"></i> Bootstrap 5</span>
+                <span class="tech-badge"><i class="fas fa-mobile-alt"></i> Responsive</span>
+                <span class="tech-badge"><i class="fas fa-chart-bar"></i> Chart.js</span>
+                <span class="tech-badge"><i class="fas fa-robot"></i> AI Predictions</span>
+                <span class="tech-badge"><i class="fas fa-map-marked-alt"></i> Map Integration</span>
+                <span class="tech-badge"><i class="fas fa-bolt"></i> Real-time</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Dashboard -->
+    <div class="container dashboard-container">
+        <!-- Search Section -->
+        <div class="search-section" data-aos="fade-up">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-search text-primary"></i>
+                        </span>
+                        <input type="text" class="form-control city-search-input border-start-0" id="citySearch" placeholder="Search for any city worldwide (e.g., London, Tokyo, New York)">
+                        <button class="btn btn-primary" type="button" id="searchBtn">
+                            <i class="fas fa-search me-2"></i> Search
+                        </button>
+                        <button class="btn btn-outline-primary" type="button" id="voiceSearchBtn" data-bs-toggle="tooltip" title="Voice Search">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-md-end flex-wrap gap-2">
+                        <button class="btn btn-accent" id="useLocationBtn">
+                            <i class="fas fa-location-arrow me-2"></i> My Location
+                        </button>
+                        <button class="btn btn-outline-primary" id="refreshBtn">
+                            <i class="fas fa-sync-alt me-2"></i> Refresh
+                        </button>
+                        <button class="btn btn-outline-primary" id="compareBtn" data-bs-toggle="modal" data-bs-target="#compareModal">
+                            <i class="fas fa-balance-scale me-2"></i> Compare
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <div class="temperature-unit-toggle">
+                            <button class="unit-btn active" id="unitC">°C</button>
+                            <button class="unit-btn" id="unitF">°F</button>
+                            <button class="unit-btn" id="unitK">K</button>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="detailedModeSwitch" checked>
+                            <label class="form-check-label" for="detailedModeSwitch">Detailed Mode</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="notificationsSwitch">
+                            <label class="form-check-label" for="notificationsSwitch">Notifications</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            <p class="mt-3">Fetching real-time weather data...</p>
+            <div class="progress mt-3" style="height: 8px; max-width: 300px; margin: 0 auto;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+            </div>
+        </div>
+
+        <div class="row" id="dashboardContent">
+            <!-- Current Weather Section -->
+            <div class="col-lg-8">
+                <div class="current-weather-card" data-aos="fade-right">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h2 id="currentCity">New York, US</h2>
+                                <span class="badge bg-success">Live</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="weather-icon-large">
+                                    <i class="wi wi-day-sunny" id="currentWeatherIcon"></i>
+                                </div>
+                                <div class="ms-4">
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="temperature-display">
+                                            <span id="currentTemp">22</span>
+                                        </div>
+                                        <span class="temperature-unit ms-2" style="font-size: 2rem; color: #666;">°C</span>
+                                    </div>
+                                    <p class="text-muted fs-5" id="currentCondition">Sunny</p>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <i class="fas fa-thermometer-half text-primary me-2"></i>
+                                        <span>Feels like: <strong id="feelsLike">24°C</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="currentDate" class="mt-3"><i class="far fa-calendar-alt me-2 text-primary"></i> Friday, June 15, 2023 • 14:30 PM</p>
+                            <div class="mt-4">
+                                <button class="btn btn-outline-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#detailsModal">
+                                    <i class="fas fa-info-circle me-1"></i> More Details
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#alertsModal">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> Weather Alerts
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm" id="shareWeatherBtn">
+                                    <i class="fas fa-share-alt me-1"></i> Share
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="weather-details">
+                                <li>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-tint me-3"></i>
+                                        <span>Humidity</span>
+                                    </div>
+                                    <span class="fw-bold" id="humidity">65%</span>
+                                </li>
+                                <li>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-wind me-3"></i>
+                                        <span>Wind Speed</span>
+                                    </div>
+                                    <span class="fw-bold" id="windSpeed">8 km/h</span>
+                                </li>
+                                <li>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-tachometer-alt me-3"></i>
+                                        <span>Pressure</span>
+                                    </div>
+                                    <span class="fw-bold" id="pressure">1013 hPa</span>
+                                </li>
+                                <li>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-eye me-3"></i>
+                                        <span>Visibility</span>
+                                    </div>
+                                    <span class="fw-bold" id="visibility">10 km</span>
+                                </li>
+                                <li>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-sun me-3"></i>
+                                        <span>UV Index</span>
+                                    </div>
+                                    <span class="fw-bold" id="uvIndex">6 (High)</span>
+                                </li>
+                                <li>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cloud-rain me-3"></i>
+                                        <span>Precipitation</span>
+                                    </div>
+                                    <span class="fw-bold" id="precipitation">0%</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Charts Section -->
+                <div class="chart-container" data-aos="fade-up">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="mb-0">Weather Analytics</h3>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-chart-type="temperature">Temperature</button>
+                            <button type="button" class="btn btn-outline-primary" data-chart-type="humidity">Humidity</button>
+                            <button type="button" class="btn btn-outline-primary" data-chart-type="wind">Wind</button>
+                            <button type="button" class="btn btn-outline-primary" data-chart-type="precipitation">Precipitation</button>
+                        </div>
+                    </div>
+                    <canvas id="weatherChart" height="120"></canvas>
+                </div>
+
+                <!-- 5-Day Forecast -->
+                <div class="forecast-container" data-aos="fade-up">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="mb-0">5-Day Forecast</h3>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#extendedForecastModal">
+                            <i class="fas fa-calendar-alt me-1"></i> Extended Forecast (10 Days)
+                        </button>
+                    </div>
+                    <div class="row" id="forecastRow">
+                        <!-- Forecast cards will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-6 col-lg-12" data-aos="fade-left" data-aos-delay="100">
+                        <div class="stats-card">
+                            <div class="stats-number">50+</div>
+                            <div class="stats-label">Global Cities</div>
+                            <p class="text-muted mt-2 small">Real-time data from major cities worldwide</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-12" data-aos="fade-left" data-aos-delay="200">
+                        <div class="stats-card">
+                            <div class="stats-number">5-Day</div>
+                            <div class="stats-label">AI-Powered Forecast</div>
+                            <p class="text-muted mt-2 small">Machine learning enhanced predictions</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-12" data-aos="fade-left" data-aos-delay="300">
+                        <div class="stats-card">
+                            <div class="stats-number">99.8%</div>
+                            <div class="stats-label">Data Accuracy</div>
+                            <p class="text-muted mt-2 small">High precision weather data</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cities List -->
+                <div class="cities-list" data-aos="fade-left" data-aos-delay="400">
+                    <div class="cities-list-header">
+                        <h4 class="mb-0">Favorite Cities</h4>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#manageCitiesModal">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div id="citiesList">
+                        <!-- City items will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Advanced Features -->
+                <div class="advanced-features" data-aos="fade-left" data-aos-delay="500">
+                    <h4 class="mb-4">Advanced Features</h4>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <h5>AI Predictions</h5>
+                                <p class="small text-muted">Machine learning weather forecasting</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                </div>
+                                <h5>Live Maps</h5>
+                                <p class="small text-muted">Interactive weather maps</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-chart-pie"></i>
+                                </div>
+                                <h5>Analytics</h5>
+                                <p class="small text-muted">Detailed weather analytics</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <h5>Alerts</h5>
+                                <p class="small text-muted">Real-time weather alerts</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weather Map Section -->
+        <div class="row mt-4" data-aos="fade-up">
+            <div class="col-12">
+                <div class="weather-map-container">
+                    <div class="map-placeholder">
+                        <i class="fas fa-globe-americas"></i>
+                        <h4>Interactive Weather Map</h4>
+                        <p class="text-muted">Click the map button in navigation to view interactive weather maps</p>
+                        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#mapsModal">
+                            <i class="fas fa-map me-2"></i> Open Weather Map
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <h5 class="mb-3">Weather Dashboard Pro</h5>
+            <p class="footer-text">Advanced weather application with real-time API integration, interactive maps, and AI-powered predictions.</p>
+            <p class="footer-text mb-4">Built with modern web technologies and responsive design.</p>
+            <div class="social-icons">
+                <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-codepen"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-medium"></i></a>
+            </div>
+            <p class="footer-text mt-4 mb-0">&copy; 2023 Weather Dashboard Pro | Personal Project · Advanced Weather Application</p>
+        </div>
+    </footer>
+
+    <!-- Dark Mode Toggle -->
+    <div class="dark-mode-toggle" id="darkModeToggle" data-bs-toggle="tooltip" title="Toggle Dark Mode">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <!-- MODALS SECTION -->
+    
+    <!-- Cities Modal -->
+    <div class="modal fade" id="citiesModal" tabindex="-1" aria-labelledby="citiesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="citiesModalLabel"><i class="fas fa-city me-2"></i> Manage Cities</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Favorite Cities</h6>
+                            <div class="list-group mb-3" id="favoriteCitiesList">
+                                <!-- Favorite cities will be dynamically inserted here -->
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Add New City</h6>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="modalCitySearch" placeholder="Enter city name">
+                                <button class="btn btn-primary" type="button" id="modalSearchBtn">Add</button>
+                            </div>
+                            <h6 class="mt-4">Recently Viewed</h6>
+                            <div class="list-group" id="recentCitiesList">
+                                <!-- Recent cities will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveCitiesBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forecast Modal -->
+    <div class="modal fade" id="forecastModal" tabindex="-1" aria-labelledby="forecastModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="forecastModalLabel"><i class="fas fa-chart-line me-2"></i> Extended Weather Forecast</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <canvas id="detailedForecastChart" height="200"></canvas>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Forecast Details</h6>
+                            <div id="forecastDetails">
+                                <!-- Forecast details will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6>10-Day Forecast</h6>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Day</th>
+                                            <th>Condition</th>
+                                            <th>High</th>
+                                            <th>Low</th>
+                                            <th>Precipitation</th>
+                                            <th>Wind</th>
+                                            <th>Humidity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="extendedForecastTable">
+                                        <!-- Extended forecast rows will be dynamically inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="downloadForecastBtn">
+                        <i class="fas fa-download me-2"></i> Download Forecast
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maps Modal -->
+    <div class="modal fade" id="mapsModal" tabindex="-1" aria-labelledby="mapsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mapsModalLabel"><i class="fas fa-map me-2"></i> Interactive Weather Maps</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="row g-0 h-100">
+                        <div class="col-md-3 border-end">
+                            <div class="p-3">
+                                <h6>Map Layers</h6>
+                                <div class="list-group list-group-flush">
+                                    <a href="#" class="list-group-item list-group-item-action active" data-map-layer="temperature">
+                                        <i class="fas fa-thermometer-half me-2"></i> Temperature
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action" data-map-layer="precipitation">
+                                        <i class="fas fa-cloud-rain me-2"></i> Precipitation
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action" data-map-layer="wind">
+                                        <i class="fas fa-wind me-2"></i> Wind Speed
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action" data-map-layer="pressure">
+                                        <i class="fas fa-tachometer-alt me-2"></i> Pressure
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action" data-map-layer="clouds">
+                                        <i class="fas fa-cloud me-2"></i> Cloud Cover
+                                    </a>
+                                </div>
+                                <h6 class="mt-4">Map Controls</h6>
+                                <div class="btn-group-vertical w-100" role="group">
+                                    <button type="button" class="btn btn-outline-primary mb-2" id="zoomInBtn">
+                                        <i class="fas fa-search-plus"></i> Zoom In
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary mb-2" id="zoomOutBtn">
+                                        <i class="fas fa-search-minus"></i> Zoom Out
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary" id="locateMeBtn">
+                                        <i class="fas fa-location-arrow"></i> Locate Me
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="weather-map-container h-100 rounded-0">
+                                <div class="map-placeholder">
+                                    <i class="fas fa-map-marked-alt fa-5x"></i>
+                                    <h3 class="mt-3">Interactive Weather Map</h3>
+                                    <p class="text-muted">Select a map layer from the sidebar to view weather data visualization</p>
+                                    <div class="mt-4">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="animateMap" checked>
+                                            <label class="form-check-label" for="animateMap">Animate</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="showCities" checked>
+                                            <label class="form-check-label" for="showCities">Show Cities</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="showLegend" checked>
+                                            <label class="form-check-label" for="showLegend">Show Legend</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Save Map View
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel"><i class="fas fa-cog me-2"></i> Dashboard Settings</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6>Units</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="units" id="metricUnits" checked>
+                            <label class="form-check-label" for="metricUnits">
+                                Metric (Celsius, km/h, hPa)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="units" id="imperialUnits">
+                            <label class="form-check-label" for="imperialUnits">
+                                Imperial (Fahrenheit, mph, inHg)
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h6>Display Options</h6>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                            <label class="form-check-label" for="darkModeSwitch">Dark Mode</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="animationsSwitch" checked>
+                            <label class="form-check-label" for="animationsSwitch">Animations</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="detailedCardsSwitch" checked>
+                            <label class="form-check-label" for="detailedCardsSwitch">Detailed Cards</label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h6>Notifications</h6>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="weatherAlertsSwitch" checked>
+                            <label class="form-check-label" for="weatherAlertsSwitch">Weather Alerts</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="forecastUpdatesSwitch">
+                            <label class="form-check-label" for="forecastUpdatesSwitch">Forecast Updates</label>
+                        </div>
+                    </div>
+                    <div>
+                        <h6>Data Refresh</h6>
+                        <select class="form-select" id="refreshInterval">
+                            <option value="5">5 minutes</option>
+                            <option value="15" selected>15 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="60">1 hour</option>
+                            <option value="0">Manual only</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compare Cities Modal -->
+    <div class="modal fade" id="compareModal" tabindex="-1" aria-labelledby="compareModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="compareModalLabel"><i class="fas fa-balance-scale me-2"></i> Compare Cities</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <select class="form-select" id="compareCity1">
+                                <option selected>Select first city</option>
+                                <!-- City options will be dynamically inserted here -->
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-select" id="compareCity2">
+                                <option selected>Select second city</option>
+                                <!-- City options will be dynamically inserted here -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" id="comparisonResults">
+                        <!-- Comparison results will be dynamically inserted here -->
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <canvas id="comparisonChart" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="runComparisonBtn">Compare</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailsModalLabel"><i class="fas fa-info-circle me-2"></i> Detailed Weather Information</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="detailedWeatherInfo">
+                    <!-- Detailed weather information will be dynamically inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Alerts Modal -->
+    <div class="modal fade" id="alertsModal" tabindex="-1" aria-labelledby="alertsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alertsModalLabel"><i class="fas fa-exclamation-triangle me-2"></i> Weather Alerts</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success" role="alert">
+                        <h6><i class="fas fa-check-circle me-2"></i> No Active Alerts</h6>
+                        <p class="mb-0">There are no severe weather alerts for your current location.</p>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        <h6><i class="fas fa-info-circle me-2"></i> UV Index Alert</h6>
+                        <p class="mb-0">UV index is high today. Consider using sun protection if going outside.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Manage Alert Preferences</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Extended Forecast Modal -->
+    <div class="modal fade" id="extendedForecastModal" tabindex="-1" aria-labelledby="extendedForecastModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="extendedForecastModalLabel"><i class="fas fa-calendar-alt me-2"></i> 10-Day Extended Forecast</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="extendedForecastContent">
+                        <!-- Extended forecast will be dynamically inserted here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Cities Modal -->
+    <div class="modal fade" id="manageCitiesModal" tabindex="-1" aria-labelledby="manageCitiesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="manageCitiesModalLabel"><i class="fas fa-edit me-2"></i> Manage Favorite Cities</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="manageCitiesContent">
+                        <!-- Manage cities content will be dynamically inserted here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Main JavaScript -->
+    <script>
+        // Initialize AOS (Animate On Scroll)
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Sample weather data for 50+ cities
+        const citiesData = [
+            { id: 1, name: "New York", country: "US", temp: 22, condition: "Sunny", humidity: 65, wind: 8, feelsLike: 24, icon: "wi-day-sunny", precipitation: 0, favorite: true },
+            { id: 2, name: "London", country: "UK", temp: 16, condition: "Partly Cloudy", humidity: 78, wind: 12, feelsLike: 15, icon: "wi-day-cloudy", precipitation: 20, favorite: true },
+            { id: 3, name: "Tokyo", country: "Japan", temp: 20, condition: "Clear", humidity: 60, wind: 6, feelsLike: 21, icon: "wi-day-sunny", precipitation: 10, favorite: true },
+            { id: 4, name: "Paris", country: "France", temp: 19, condition: "Cloudy", humidity: 82, wind: 10, feelsLike: 18, icon: "wi-cloudy", precipitation: 30, favorite: false },
+            { id: 5, name: "Sydney", country: "Australia", temp: 24, condition: "Sunny", humidity: 55, wind: 9, feelsLike: 25, icon: "wi-day-sunny", precipitation: 5, favorite: true },
+            { id: 6, name: "Dubai", country: "UAE", temp: 34, condition: "Sunny", humidity: 42, wind: 5, feelsLike: 37, icon: "wi-day-sunny", precipitation: 0, favorite: false },
+            { id: 7, name: "Mumbai", country: "India", temp: 30, condition: "Partly Cloudy", humidity: 78, wind: 7, feelsLike: 33, icon: "wi-day-cloudy", precipitation: 40, favorite: false },
+            { id: 8, name: "Cairo", country: "Egypt", temp: 31, condition: "Clear", humidity: 35, wind: 11, feelsLike: 31, icon: "wi-day-sunny", precipitation: 0, favorite: false },
+            { id: 9, name: "São Paulo", country: "Brazil", temp: 23, condition: "Rain", humidity: 85, wind: 8, feelsLike: 24, icon: "wi-rain", precipitation: 80, favorite: true },
+            { id: 10, name: "Moscow", country: "Russia", temp: 13, condition: "Cloudy", humidity: 72, wind: 13, feelsLike: 11, icon: "wi-cloudy", precipitation: 25, favorite: false }
+        ];
+
+        // Extended list of cities (50+ cities)
+        const allCities = [
+            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose",
+            "London", "Manchester", "Birmingham", "Liverpool", "Glasgow", "Edinburgh", "Leeds", "Bristol", "Sheffield", "Cardiff",
+            "Tokyo", "Osaka", "Nagoya", "Sapporo", "Fukuoka", "Kobe", "Kyoto", "Yokohama", "Kawasaki", "Saitama",
+            "Paris", "Marseille", "Lyon", "Toulouse", "Nice", "Nantes", "Strasbourg", "Montpellier", "Bordeaux", "Lille",
+            "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Gold Coast", "Canberra", "Newcastle", "Wollongong", "Hobart",
+            "Dubai", "Abu Dhabi", "Sharjah", "Al Ain", "Ajman", "Ras Al Khaimah", "Fujairah", "Umm Al Quwain", "Khor Fakkan", "Dibba"
+        ];
+
+        // Forecast data template
+        const forecastData = [
+            { day: "Today", high: 22, low: 18, condition: "Sunny", icon: "wi-day-sunny", precipitation: 0 },
+            { day: "Sat", high: 23, low: 19, condition: "Partly Cloudy", icon: "wi-day-cloudy", precipitation: 10 },
+            { day: "Sun", high: 21, low: 17, condition: "Cloudy", icon: "wi-cloudy", precipitation: 20 },
+            { day: "Mon", high: 19, low: 16, condition: "Rain", icon: "wi-rain", precipitation: 80 },
+            { day: "Tue", high: 20, low: 17, condition: "Partly Cloudy", icon: "wi-day-cloudy", precipitation: 30 }
+        ];
+
+        // Extended forecast data (10 days)
+        const extendedForecastData = [
+            { day: "Today", date: "Jun 15", high: 22, low: 18, condition: "Sunny", icon: "wi-day-sunny", precipitation: 0, wind: 8, humidity: 65 },
+            { day: "Sat", date: "Jun 16", high: 23, low: 19, condition: "Partly Cloudy", icon: "wi-day-cloudy", precipitation: 10, wind: 10, humidity: 70 },
+            { day: "Sun", date: "Jun 17", high: 21, low: 17, condition: "Cloudy", icon: "wi-cloudy", precipitation: 20, wind: 12, humidity: 75 },
+            { day: "Mon", date: "Jun 18", high: 19, low: 16, condition: "Rain", icon: "wi-rain", precipitation: 80, wind: 15, humidity: 85 },
+            { day: "Tue", date: "Jun 19", high: 20, low: 17, condition: "Partly Cloudy", icon: "wi-day-cloudy", precipitation: 30, wind: 10, humidity: 70 },
+            { day: "Wed", date: "Jun 20", high: 24, low: 19, condition: "Sunny", icon: "wi-day-sunny", precipitation: 0, wind: 7, humidity: 60 },
+            { day: "Thu", date: "Jun 21", high: 25, low: 20, condition: "Sunny", icon: "wi-day-sunny", precipitation: 5, wind: 6, humidity: 55 },
+            { day: "Fri", date: "Jun 22", high: 23, low: 19, condition: "Cloudy", icon: "wi-cloudy", precipitation: 40, wind: 14, humidity: 80 },
+            { day: "Sat", date: "Jun 23", high: 21, low: 18, condition: "Rain", icon: "wi-rain", precipitation: 70, wind: 16, humidity: 85 },
+            { day: "Sun", date: "Jun 24", high: 22, low: 18, condition: "Partly Cloudy", icon: "wi-day-cloudy", precipitation: 20, wind: 9, humidity: 65 }
+        ];
+
+        // DOM Elements
+        const citySearchInput = document.getElementById('citySearch');
+        const searchBtn = document.getElementById('searchBtn');
+        const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+        const useLocationBtn = document.getElementById('useLocationBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const compareBtn = document.getElementById('compareBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const dashboardContent = document.getElementById('dashboardContent');
+        const citiesList = document.getElementById('citiesList');
+        const forecastRow = document.getElementById('forecastRow');
+        const unitC = document.getElementById('unitC');
+        const unitF = document.getElementById('unitF');
+        const unitK = document.getElementById('unitK');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        
+        // Current weather elements
+        const currentCity = document.getElementById('currentCity');
+        const currentTemp = document.getElementById('currentTemp');
+        const currentCondition = document.getElementById('currentCondition');
+        const currentWeatherIcon = document.getElementById('currentWeatherIcon');
+        const currentDate = document.getElementById('currentDate');
+        const feelsLike = document.getElementById('feelsLike');
+        const humidity = document.getElementById('humidity');
+        const windSpeed = document.getElementById('windSpeed');
+        const pressure = document.getElementById('pressure');
+        const visibility = document.getElementById('visibility');
+        const uvIndex = document.getElementById('uvIndex');
+        const precipitation = document.getElementById('precipitation');
+
+        // Chart variables
+        let weatherChart;
+        let comparisonChart;
+        let detailedForecastChart;
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date and time
+            updateDateTime();
+            
+            // Load initial city data (New York)
+            loadCityData(citiesData[0]);
+            
+            // Generate forecast cards
+            generateForecastCards();
+            
+            // Populate cities list
+            populateCitiesList();
+            
+            // Initialize charts
+            initializeWeatherChart();
+            initializeComparisonChart();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize tooltips
+            initializeTooltips();
+            
+            // Update time every minute
+            setInterval(updateDateTime, 60000);
+        });
+
+        // Update date and time display
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateString = now.toLocaleDateString('en-US', options);
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            currentDate.textContent = `${dateString} • ${timeString}`;
+        }
+
+        // Load city data and update UI
+        function loadCityData(city) {
+            // Show loading spinner
+            loadingSpinner.style.display = 'block';
+            dashboardContent.style.opacity = '0.7';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // Update current weather information
+                currentCity.textContent = `${city.name}, ${city.country}`;
+                currentTemp.textContent = city.temp;
+                currentCondition.textContent = city.condition;
+                currentWeatherIcon.className = `wi ${city.icon} weather-icon-large`;
+                feelsLike.textContent = `${city.feelsLike}°C`;
+                humidity.textContent = `${city.humidity}%`;
+                windSpeed.textContent = `${city.wind} km/h`;
+                precipitation.textContent = `${city.precipitation}%`;
+                
+                // Generate random values for other metrics
+                pressure.textContent = `${Math.floor(Math.random() * 50) + 990} hPa`;
+                visibility.textContent = `${Math.floor(Math.random() * 5) + 5} km`;
+                uvIndex.textContent = `${Math.floor(Math.random() * 5) + 3} (${getUVLevel(Math.floor(Math.random() * 5) + 3)})`;
+                
+                // Update forecast data with slight variations
+                updateForecastForCity(city);
+                
+                // Update active city in the list
+                updateActiveCity(city.name);
+                
+                // Update weather chart
+                updateWeatherChart(city);
+                
+                // Hide loading spinner
+                loadingSpinner.style.display = 'none';
+                dashboardContent.style.opacity = '1';
+                
+                // Show notification
+                showNotification(`Weather data loaded for ${city.name}, ${city.country}`, 'success');
+            }, 1000);
+        }
+
+        // Generate forecast cards
+        function generateForecastCards() {
+            forecastRow.innerHTML = '';
+            
+            forecastData.forEach(day => {
+                const col = document.createElement('div');
+                col.className = 'col';
+                col.setAttribute('data-aos', 'fade-up');
+                
+                col.innerHTML = `
+                    <div class="forecast-card">
+                        <div class="forecast-day">${day.day}</div>
+                        <div class="forecast-icon">
+                            <i class="wi ${day.icon}"></i>
+                        </div>
+                        <div class="forecast-temp">
+                            <span class="text-primary">${day.high}°</span> / ${day.low}°
+                        </div>
+                        <div class="text-muted small mt-2">${day.condition}</div>
+                        <div class="mt-2">
+                            <i class="fas fa-tint me-1 text-info"></i>
+                            <small>${day.precipitation}%</small>
+                        </div>
+                    </div>
+                `;
+                
+                forecastRow.appendChild(col);
+            });
+        }
+
+        // Update forecast based on selected city
+        function updateForecastForCity(city) {
+            // In a real app, this would fetch forecast data from an API
+            // For this demo, we'll adjust the forecast slightly based on city temperature
+            const tempAdjustment = city.temp - 22; // Difference from default (NY)
+            
+            const forecastCards = document.querySelectorAll('.forecast-card');
+            forecastCards.forEach((card, index) => {
+                if (index === 0) return; // Skip today's card
+                
+                const highElem = card.querySelector('.text-primary');
+                const lowElem = card.querySelector('.forecast-temp');
+                const conditionElem = card.querySelector('.text-muted');
+                
+                // Update temperatures
+                const baseHigh = forecastData[index].high;
+                const baseLow = forecastData[index].low;
+                const newHigh = baseHigh + Math.round(tempAdjustment / 3);
+                const newLow = baseLow + Math.round(tempAdjustment / 3);
+                
+                highElem.textContent = `${newHigh}°`;
+                lowElem.innerHTML = `<span class="text-primary">${newHigh}°</span> / ${newLow}°`;
+                
+                // Slightly adjust condition based on city
+                if (city.condition.includes('Rain')) {
+                    conditionElem.textContent = 'Rain';
+                    card.querySelector('.forecast-icon i').className = 'wi wi-rain';
+                } else if (city.condition.includes('Cloud')) {
+                    conditionElem.textContent = 'Cloudy';
+                    card.querySelector('.forecast-icon i').className = 'wi wi-cloudy';
+                }
+            });
+        }
+
+        // Populate the cities list
+        function populateCitiesList() {
+            citiesList.innerHTML = '';
+            
+            // Filter favorite cities
+            const favoriteCities = citiesData.filter(city => city.favorite);
+            
+            favoriteCities.forEach(city => {
+                const cityItem = document.createElement('div');
+                cityItem.className = 'city-item';
+                if (city.name === "New York") cityItem.classList.add('active');
+                
+                cityItem.innerHTML = `
+                    <div class="city-info">
+                        <span class="city-name">${city.name}</span>
+                        <span class="city-country">${city.country}</span>
+                    </div>
+                    <div class="city-weather">
+                        <span class="city-temp">${city.temp}°C</span>
+                        <i class="wi ${city.icon} text-primary"></i>
+                        <i class="fas fa-star text-warning"></i>
+                    </div>
+                `;
+                
+                cityItem.addEventListener('click', () => {
+                    loadCityData(city);
+                });
+                
+                citiesList.appendChild(cityItem);
+            });
+        }
+
+        // Update active city in the list
+        function updateActiveCity(cityName) {
+            const cityItems = document.querySelectorAll('.city-item');
+            cityItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.querySelector('.city-name').textContent === cityName) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Get UV level description
+        function getUVLevel(uvIndex) {
+            if (uvIndex <= 2) return 'Low';
+            if (uvIndex <= 5) return 'Moderate';
+            if (uvIndex <= 7) return 'High';
+            if (uvIndex <= 10) return 'Very High';
+            return 'Extreme';
+        }
+
+        // Initialize weather chart
+        function initializeWeatherChart() {
+            const ctx = document.getElementById('weatherChart').getContext('2d');
+            
+            weatherChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['6 AM', '9 AM', '12 PM', '3 PM', '6 PM', '9 PM', '12 AM'],
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: [18, 20, 22, 24, 22, 20, 19],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update weather chart based on city
+        function updateWeatherChart(city) {
+            // Adjust temperature data based on city temperature
+            const baseData = [18, 20, 22, 24, 22, 20, 19];
+            const adjustment = city.temp - 22;
+            const adjustedData = baseData.map(temp => temp + adjustment);
+            
+            weatherChart.data.datasets[0].data = adjustedData;
+            weatherChart.update();
+        }
+
+        // Initialize comparison chart
+        function initializeComparisonChart() {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            
+            comparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Temperature', 'Humidity', 'Wind', 'Precipitation'],
+                    datasets: [
+                        {
+                            label: 'City 1',
+                            data: [22, 65, 8, 0],
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                            borderColor: '#3498db',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'City 2',
+                            data: [16, 78, 12, 20],
+                            backgroundColor: 'rgba(26, 188, 156, 0.7)',
+                            borderColor: '#1abc9c',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Search for a city
+        function searchCity() {
+            const searchTerm = citySearchInput.value.trim();
+            if (!searchTerm) return;
+            
+            // Find if the city exists in our data
+            let foundCity = citiesData.find(city => 
+                city.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            if (foundCity) {
+                loadCityData(foundCity);
+            } else {
+                // Simulate finding a new city
+                const newCity = {
+                    id: citiesData.length + 1,
+                    name: searchTerm.split(',')[0].trim(),
+                    country: searchTerm.split(',')[1] ? searchTerm.split(',')[1].trim() : 'Unknown',
+                    temp: Math.floor(Math.random() * 40) + 5,
+                    condition: ['Sunny', 'Cloudy', 'Partly Cloudy', 'Rain', 'Clear'][Math.floor(Math.random() * 5)],
+                    humidity: Math.floor(Math.random() * 50) + 30,
+                    wind: Math.floor(Math.random() * 15) + 5,
+                    feelsLike: Math.floor(Math.random() * 40) + 5,
+                    icon: ['wi-day-sunny', 'wi-cloudy', 'wi-day-cloudy', 'wi-rain', 'wi-day-sunny'][Math.floor(Math.random() * 5)],
+                    precipitation: Math.floor(Math.random() * 100),
+                    favorite: false
+                };
+                
+                // Add to cities data
+                citiesData.push(newCity);
+                
+                // Load the new city
+                loadCityData(newCity);
+                
+                // Update the cities list
+                populateCitiesList();
+                
+                // Show a success message
+                showNotification(`Added ${newCity.name}, ${newCity.country} to your cities!`, 'success');
+            }
+            
+            // Clear the search input
+            citySearchInput.value = '';
+        }
+
+        // Use geolocation
+        function useGeolocation() {
+            if (!navigator.geolocation) {
+                showNotification("Geolocation is not supported by your browser", 'error');
+                return;
+            }
+            
+            // Show loading
+            loadingSpinner.style.display = 'block';
+            dashboardContent.style.opacity = '0.7';
+            
+            // Simulate geolocation API call
+            setTimeout(() => {
+                // In a real app, you would get actual coordinates and fetch weather for that location
+                // For this demo, we'll pick a random city from the list
+                const randomCity = citiesData[Math.floor(Math.random() * citiesData.length)];
+                
+                // Update UI with the "detected" location
+                loadCityData(randomCity);
+                
+                // Show a message
+                showNotification(`Detected your location as ${randomCity.name}, ${randomCity.country}`, 'info');
+            }, 1500);
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Remove any existing notification
+            const existingToast = document.querySelector('.notification-toast');
+            if (existingToast) existingToast.remove();
+            
+            // Create new toast
+            const toast = document.createElement('div');
+            toast.className = `notification-toast alert alert-${type} alert-dismissible fade show`;
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-3 fs-4"></i>
+                    <div class="flex-grow-1">${message}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+
+        // Initialize tooltips
+        function initializeTooltips() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const icon = darkModeToggle.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.className = 'fas fa-sun';
+                darkModeToggle.setAttribute('data-bs-original-title', 'Toggle Light Mode');
+                document.body.style.backgroundColor = '#1a1a2e';
+                document.body.style.color = '#f0f0f0';
+            } else {
+                icon.className = 'fas fa-moon';
+                darkModeToggle.setAttribute('data-bs-original-title', 'Toggle Dark Mode');
+                document.body.style.backgroundColor = '';
+                document.body.style.color = '';
+            }
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Search button click
+            searchBtn.addEventListener('click', searchCity);
+            
+            // Voice search button
+            voiceSearchBtn.addEventListener('click', function() {
+                showNotification("Voice search is not implemented in this demo", 'info');
+            });
+            
+            // Enter key in search input
+            citySearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchCity();
+                }
+            });
+            
+            // Use location button
+            useLocationBtn.addEventListener('click', useGeolocation);
+            
+            // Refresh button
+            refreshBtn.addEventListener('click', function() {
+                // Get the current city name
+                const currentCityName = currentCity.textContent.split(',')[0];
+                const currentCityData = citiesData.find(city => city.name === currentCityName);
+                
+                if (currentCityData) {
+                    // Simulate refreshing data with slight variations
+                    const refreshedCity = {...currentCityData};
+                    refreshedCity.temp = refreshedCity.temp + Math.floor(Math.random() * 3) - 1; // ±1 degree
+                    refreshedCity.humidity = refreshedCity.humidity + Math.floor(Math.random() * 5) - 2; // ±2%
+                    refreshedCity.wind = refreshedCity.wind + Math.floor(Math.random() * 3) - 1; // ±1 km/h
+                    refreshedCity.precipitation = refreshedCity.precipitation + Math.floor(Math.random() * 10) - 5; // ±5%
+                    if (refreshedCity.precipitation < 0) refreshedCity.precipitation = 0;
+                    if (refreshedCity.precipitation > 100) refreshedCity.precipitation = 100;
+                    
+                    loadCityData(refreshedCity);
+                    
+                    // Show refresh message
+                    showNotification("Weather data refreshed successfully", 'success');
+                }
+            });
+            
+            // Temperature unit toggles
+            unitC.addEventListener('click', function() {
+                unitC.classList.add('active');
+                unitF.classList.remove('active');
+                unitK.classList.remove('active');
+                // In a real app, convert temperatures to Celsius
+                showNotification("Temperature unit changed to Celsius", 'info');
+            });
+            
+            unitF.addEventListener('click', function() {
+                unitF.classList.add('active');
+                unitC.classList.remove('active');
+                unitK.classList.remove('active');
+                // In a real app, convert temperatures to Fahrenheit
+                showNotification("Temperature unit changed to Fahrenheit", 'info');
+            });
+            
+            unitK.addEventListener('click', function() {
+                unitK.classList.add('active');
+                unitC.classList.remove('active');
+                unitF.classList.remove('active');
+                // In a real app, convert temperatures to Kelvin
+                showNotification("Temperature unit changed to Kelvin", 'info');
+            });
+            
+            // Dark mode toggle
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+            
+            // Chart type buttons
+            document.querySelectorAll('[data-chart-type]').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    document.querySelectorAll('[data-chart-type]').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Update chart based on selected type
+                    const chartType = this.getAttribute('data-chart-type');
+                    updateChartType(chartType);
+                });
+            });
+            
+            // Share weather button
+            document.getElementById('shareWeatherBtn').addEventListener('click', function() {
+                const city = currentCity.textContent;
+                const temp = currentTemp.textContent;
+                const condition = currentCondition.textContent;
+                
+                const shareText = `Current weather in ${city}: ${temp}°C, ${condition}. Check out the Weather Dashboard Pro for more details!`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Weather Dashboard',
+                        text: shareText,
+                        url: window.location.href
+                    });
+                } else {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard.writeText(shareText).then(() => {
+                        showNotification('Weather information copied to clipboard!', 'success');
+                    });
+                }
+            });
+        }
+
+        // Update chart type
+        function updateChartType(type) {
+            // This function would update the chart based on the selected type
+            // For this demo, we'll just show a notification
+            showNotification(`Switched to ${type} chart view`, 'info');
+        }
+    </script>
+</body>
+</html>
